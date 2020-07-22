@@ -52,7 +52,7 @@ Type type_name as 'Type Name'
 ```
 
 - the name of the content type is defined by `type_name`
-- a content type is made up of a collections of `field`s
+- a content type is made up of a collections of `field`s or `field_group`s
 
 An example of a news article content type might look something like this:
 ```
@@ -73,243 +73,62 @@ Type news_article as 'News Article'
 Fields are data sets defined most simply as `key:value` pairs.
 
 ```
-field_name field_type/field_sub_type
-    field_attributes
+field_name field_type
+    field_attribute
+        field_attribute_option
 ```
 
 - `field_name` is the name of the field and may be aliased with `field_name as 'Field Name'`
-- the type of field, such as `text` or `boolean` is defined by `field_type`
-- `field_sub_type` is an optional qualifier that modifies the `field_type`
-- `field_sub_type` qualifiers are unique to each `field_type` (see [Field Types](#field-types)) below)
-- a field's value(s) and other options are defined in `field_attributes`
-- along with supporting HTML field attributes, `field_attributes` also includes unique attributes for each field defined below
+- `field_type` defines the type of field, such as `text` or `boolean`
+- `field_attribute` defines a field's value(s) and other options
+- `field_attribute_option`s are the available options for each attribute
 
 ### Field Types
-Field types define what data a field can contain, and how that data should be structured.
 
-- [`boolean`](#boolean) - a logical binary operator `0/1` or `yes/no`
-- [`date`](#date) - a date-time or part thereof
-- [`duration`](#duration) - a time interval or length
-- [`email`](#email) - an email address
-- [`media`](#media) - a media object or objects, such as an image, video, file, or document
-- [`number`](#number) - a number or range of numbers
-- [`password`](#password) - a concealed or encrypted string
-- [`reference`](#reference) - a reference to one or more content types or taxonomies
-- [`select`](#select) - a choice between one or more options
-- [`text`](#text) - a text string
-- [`time`](#time) - shorthand for `date` formatted for time
+Field types define what data a field can contain, and how that data should be structured. Some field types also include sub-types which define the field values even further. All fields also support [field attributes](#field-attributes) as described below.
+
+Primary types:
+
+- [`boolean`](docs/fieldTypes.md?#boolean) - a logical binary operator `0/1` or `yes/no`
+- [`date`](docs/fieldTypes.md?#date) - a date-time or part thereof
+- [`duration`](docs/fieldTypes.md?#duration) - a time interval or length
+- [`media`](docs/fieldTypes.md?#media) - a media object or objects, such as an image, video, file, or document
+- [`number`](docs/fieldTypes.md?#number) - a number or range of numbers
+- [`reference`](docs/fieldTypes.md?#reference) - a reference to one or more content types or taxonomies
+- [`select`](docs/fieldTypes.md?#select) - a choice between one or more options
+- [`text`](docs/fieldTypes.md?#text) - a text string
+
+Shorthand types:
+
+- [`document`](docs/fieldTypes.md?#media) - shorthand for `media` with pre-defined document `file_type`s
+- [`email`](docs/fieldTypes.md?#email) - shorthand for `text` with pre-defined `format`
+- [`image`](docs/fieldTypes.md?#media) - shorthand for `media` with pre-defined image `file_type`s
+- [`password`](docs/fieldTypes.md?#password) - shorthand for `text` with pre-defined `format`
+- [`time`](docs/fieldTypes.md?#time) - shorthand for `date` formatted for time
+- [`video`](docs/fieldTypes.md?#media) - shorthand for `media` with pre-defined video `file_type`s
 
 ### Field Attributes
-Each field can have various attributes attached which modify or limit the field values.
 
-`choices` *(array)*
-- an array of available choices or options
-- the first choice in the array is the default choice
-`format` *(string)*
-- a string format defining the field value
-- especially for date and time formatting
-`file_type` *(string or array)*
-- limit values to a single file type extension, or an array of file type extensions
-`file_size_min` *(float)*
-- the minimum file size for media fields
-`file_size_max` *(float)*
-- the maximum file size for media fields
-`file_size` *(array)*
-- an array representing min and max file sizes for media fields
+Field attributes are settings or restrictions for a specific field type, and are used to define the data within a field type.
 
-#### `boolean`
-A logical operator used for `yes/no` or `on/off` or similar logic. This can be considered a type of `select` field with exactly two options.
-
-**Shorthand:**
-- `bool`
-
-**Attributes:**
-- `choices: [0, 1]` *(optional)*
-    - default: `choices: [0, 1]`
-    - alternate choice values can include: `[no, yes]`, `[on, off]`
-
-```
-published boolean
-    choices: [no, yes]
-```
-
-#### `date`
-A date-time field.
-
-**Attributes:**
-- `format: YYYY-MM-DDThh:mm:ss+00:00` *(optional)*
-    - default: `YYYY-MM-DDThh:mm:ss+00:00`
-    - date format using ISO 8601 standard
-
-```
-publish_date date
-    format: YYYY-MM-DD
-```
-
-#### `duration`
-A time interval (duration) field.
-
-**Attributes:**
-- `format: PnYnMnDTnHnMnS` *(optional)*
-    - default: `PnYnMnDTnHnMnS`
-    - duration format in ISO 8601 format
-
-```
-event_duration duration
-    format: PTnHnM
-```
-
-#### `email`
-An email address field.
-
-```
-email email
-```
-
-#### `media`
-A media object or objects, such as an image, video, document, or other file type.
-
-**Sub-types:**
-- [`file`](#file) (default) - any file type
-- [`document`](#document) - a document file, such as a PDF
-- [`image`](#image) - an image file
-- [`video`](#video) - a video file
-
-**Attributes:**
-- [`file_type`](#file_type)
-- [`file_size`](#file_size)
-
-##### `file`
-Any file type.
-
-```
-download media
-```
-
-##### `document`
-A document file
-
-```
-brochure media/document
-```
-
-##### `image`
-An image
-
-```
-featured_image media/image
-```
-
-
-#### `number`
-A number field.
-
-**Sub-types:**
-- [`integer`](#integer) (default)
-- [`decimal`](#decimal)
-
-**Attributes:**
-- `min` *(integer or float, optional)* - the minimum field value
-    - default: `no minimum`
-- `max` *(integer or float, optional)* - the maximum field value
-    - default: `no maximum`
-
-##### `integer`
-A whole number.
-
-- `min/max` attributes support `integer` values
-
-```
-count number
-    min: 0
-```
-
-##### `decimal`
-A decimal number.
-
-- `min/max` attributes support `float` values
-
-**Attributes:**
-- `scale` *(integer, optional)* - the total number of digits after the decimal point
-    - default: `2`
-
-```
-price number/decimal
-    min: 0.00
-    scale: 2
-```
-
-#### `password`
-**Sub-types:**
-
-**Attributes:**
-
-#### `reference`
-A reference to another content type or taxonomy.
-
-**Sub-types:**
-
-**Attributes:**
-- `target: content_type` *(type or tax, required)* - reference target can be a type or tax.
-- `quantity_min` or `qty_min` *(integer, optional)* - the minimum number of objects to be referenced
-    - default: `0`
-- `quantity_max` or `qty_max` *(integer, optional)* - the maximum number of objects to be referenced
-    - default: `infinite`
-- `quantity` or `qty` *(integer or array, optional)* - the min/max number of objects to be referenced
-    - default: `[0, infinit]`
-    - an array of the same two integers such as `[2, 2]` sets the required amount at that number
-    - a single integer can be used in place of an array, such as `2` instead of `[2, 2]`
-
-```
-related_news reference
-    target: news_article
-    qty: [1, 2]
-```
-
-#### `select`
-**Sub-types:**
-- [`single`](#single)
-- [`multi`](#multi)
-
-**Attributes:**
-
-##### `single`
-##### `multi`
-
-#### `text`
-For text or string data. Examples might include a page title, author name, or body paragraphs.
-
-**Sub-types:**
-- [`short`](#short) (default)
-- [`long`](#long)
-
-**Attributes:**
-
-##### `short`
-A short text field for titles, names, and similar.
-
-```
-title as 'Title' text/short
-```
-
-##### `long`
-A long text field for paragraphs of text or HTML markup. Long text could represent a *wysiwyg* field for example. Any time input would exceed multiple lines or require lne breaks, long text would be used.
-
-    intro as 'Introduction Paragraph' text/long
-
-#### `time`
-Shorthand for [`date`](#date), but with a default format for time only.
-
-**Attributes:**
-- `format: hh:mm:ss.sss` *(string, optional)*
-    - default: `hh:mm:ss.sss`
-
-```
-start_time as 'Event Start Time' time
-    format: hh:mm
-```
+- [`choices`](docs/fieldAttributes.md?#choices) define selectable options
+- [`default`](docs/fieldAttributes.md?#default) defines the default field value
+- [`file_size`](docs/fieldAttributes.md?#file_size) defines the allowed file size of media objects
+- [`file_size_max`](docs/fieldAttributes.md?#file_size_max) defines the maximum file size
+- [`file_size_min`](docs/fieldAttributes.md?#file_size_min) defines the minimum file size
+- [`file_type`](docs/fieldAttributes.md?#file_type) defines the allowed file types of a media objecy
+- [`format`](docs/fieldAttributes.md?#format) defines the data format
+- [`length`](docs/fieldAttributes.md?#length) defines the length of field data
+- [`limit`](docs/fieldAttributes.md?#limit) defines the maximum value and is shorthand for a `range`'s upper value
+- [`max`](docs/fieldAttributes.md?#max) defines the maximum field value or count
+- [`min`](docs/fieldAttributes.md?#min) defines the minimum field value or count
+- [`range`](docs/fieldAttributes.md?#range) is shorthand for `min`/`max`
+- [`required`](docs/fieldAttributes.md?#required) defines a field as having a reuquired value
+- [`scale`](docs/fieldAttributes.md?#scale) defines the number of decimal places in a number field
+- [`target`](docs/fieldAttributes.md?#target) defines a reference target content type or taxonomy
 
 ## Taxonomy Definition
+
 Taxonomies are used to group content by a specific classification, attribute, or data value.
 
 ```
@@ -324,12 +143,12 @@ Tax tax_name as 'Taxonomy Name'
 - multiple `Type`s may be included in a single taxonomy
 - the data used to define if a content type is included in a a taxonomy is defined by the `Field` and its `Value`s
 - `Relation`s can be used to define `Field`s or `Value`s with `'and'`, `'or'`, `'>'`, `'<'`, and more (see [Relations](#relations))
-- `Relation`s cannot be used on `Type` - instead if multiple `Type`s are included the relationship is always considred to be `'or'`
+- `Relation`s cannot be used on `Type` - instead, if multiple `Type`s are included the relationship is always considred to be `'or'`
 
 For example, here is a Taxonomy that might define all news articles on the topic of sports or leisure:
 ```
 Tax sportsAndLiesure as 'Sports and Leisure'
-    newsArticle
+    news_article
         topic
             'or'
             sports
@@ -338,7 +157,7 @@ Tax sportsAndLiesure as 'Sports and Leisure'
 
 To take it one step further, we might also include upcoming sporting and leisure events in the taxonomy like so:
 ```
-Tax sportsAndLiesure as 'Sports and Leisure'
+Tax sports_and_leisure as 'Sports and Leisure'
     newsArticle
         topic
             'or'
@@ -353,4 +172,89 @@ Tax sportsAndLiesure as 'Sports and Leisure'
         start_time
             '>'
             now()
+```
+
+## Kitchen Sink
+
+The following is an example of a *Product* content type definition:
+
+```
+Type product as 'Sample Product'
+    id as 'SKU' number
+        required
+        unique
+    title as 'Product Name' text
+        length
+            100
+        notes
+            Product names are limited to 100 characters
+    description text
+        supports
+            wysiwyg
+    size select
+        choices
+            NULL
+            s as 'small'
+            m as 'medium'
+            l as 'large'
+    featured_image as 'Featured Image' image
+        file_size
+            1MB
+        required
+    product_images as 'Slider Images' image
+        file_size
+            1MB
+        min
+            5
+        notes
+            Products must have at least 5 slider images or no images
+    product_brochure as 'Brochure' document
+        max
+            1
+        notes
+            Products have the option for a brochure document
+    price currency
+        required
+    sale_price currency
+    is_on_sale as 'On Sale' boolean
+        default
+            false
+    related_products reference
+        target
+            product
+        max
+            2
+```
+
+Alternately we can write our definitions in object/array format:
+```
+Type product as 'Sample Product'
+    id as 'SKU' number
+        required
+        unique
+    title as 'Product Name' text
+        length: 100
+        notes: 'Product names are limited to 100 characters'
+    description text
+        supports: wysiwyg
+    size select
+        choices: [NULL, s as 'small', m as 'medium', l as 'large']
+    featured_image as 'Featured Image' image
+        file_size: 1MB
+        required
+    product_images as 'Slider Images' image
+        file_size: 1MB
+        min: 5
+        notes: 'Products must have at least 5 slider images or no images'
+    product_brochure as 'Brochure' document
+        max: 1
+        notes: 'Products have the option for a brochure document'
+    price currency
+        required
+    sale_price currency
+    is_on_sale as 'On Sale' boolean
+        default: false
+    related_products reference
+        target: product
+        max: 2
 ```
