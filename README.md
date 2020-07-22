@@ -56,7 +56,7 @@ Type type_name as 'Type Name'
 
 An example of a news article content type might look something like this:
 ```
-Type newsArticle as 'News Article'
+Type news_article as 'News Article'
     id integer
         unique
         programmatic
@@ -65,7 +65,7 @@ Type newsArticle as 'News Article'
     title text
         limit: 100
     author reference
-        reference: author
+        target: author
     body longtext
 ```
 
@@ -87,25 +87,49 @@ field_name field_type/field_sub_type
 ### Field Types
 Field types define what data a field can contain, and how that data should be structured.
 
+- [`boolean`](#boolean) - a logical binary operator `0/1` or `yes/no`
+- [`date`](#date) - a date-time or part thereof
+- [`duration`](#duration) - a time interval or length
+- [`email`](#email) - an email address
+- [`media`](#media) - a media object or objects, such as an image, video, file, or document
+- [`number`](#number) - a number or range of numbers
+- [`password`](#password) - a concealed or encrypted string
+- [`reference`](#reference) - a reference to one or more content types or taxonomies
+- [`select`](#select) - a choice between one or more options
+- [`text`](#text) - a text string
+- [`time`](#time) - shorthand for `date` formatted for time
+
+### Field Attributes
+Each field can have various attributes attached which modify or limit the field values.
+
+`choices` *(array)*
+- an array of available choices or options
+- the first choice in the array is the default choice
+`format` *(string)*
+- a string format defining the field value
+- especially for date and time formatting
+`file_type` *(string or array)*
+- limit values to a single file type extension, or an array of file type extensions
+`file_size_min` *(float)*
+- the minimum file size for media fields
+`file_size_max` *(float)*
+- the maximum file size for media fields
+`file_size` *(array)*
+- an array representing min and max file sizes for media fields
+
 #### `boolean`
 A logical operator used for `yes/no` or `on/off` or similar logic. This can be considered a type of `select` field with exactly two options.
 
+**Shorthand:**
+- `bool`
+
 **Attributes:**
-- `choices: [0, 1]` *(array, optional)* - possible choices
-    - default is `choices: [0, 1]`
+- `choices: [0, 1]` *(optional)*
+    - default: `choices: [0, 1]`
     - alternate choice values can include: `[no, yes]`, `[on, off]`
-    - the first element of the array is the default value, so `choices: [no, yes]` will default to `'no'`
 
 ```
 published boolean
-    choices: [no, yes]
-```
-
-#### `bool`
-Shorthand for [`boolean`](#boolean).
-
-```
-published bool
     choices: [no, yes]
 ```
 
@@ -113,8 +137,9 @@ published bool
 A date-time field.
 
 **Attributes:**
-- `format: YYYY-MM-DDThh:mm:ss+00:00` *(string, optional)* - date format using ISO 8601 standard
-    - default value: `YYYY-MM-DDThh:mm:ss+00:00`
+- `format: YYYY-MM-DDThh:mm:ss+00:00` *(optional)*
+    - default: `YYYY-MM-DDThh:mm:ss+00:00`
+    - date format using ISO 8601 standard
 
 ```
 publish_date date
@@ -125,8 +150,9 @@ publish_date date
 A time interval (duration) field.
 
 **Attributes:**
-- `format: PnYnMnDTnHnMnS` *(string, optional)* - duration format in ISO 8601 format
-    - default value: `PnYnMnDTnHnMnS`
+- `format: PnYnMnDTnHnMnS` *(optional)*
+    - default: `PnYnMnDTnHnMnS`
+    - duration format in ISO 8601 format
 
 ```
 event_duration duration
@@ -136,7 +162,44 @@ event_duration duration
 #### `email`
 An email address field.
 
+```
+email email
+```
+
+#### `media`
+A media object or objects, such as an image, video, document, or other file type.
+
+**Sub-types:**
+- [`file`](#file) (default) - any file type
+- [`document`](#document) - a document file, such as a PDF
+- [`image`](#image) - an image file
+- [`video`](#video) - a video file
+
 **Attributes:**
+- [`file_type`](#file_type)
+- [`file_size`](#file_size)
+
+##### `file`
+Any file type.
+
+```
+download media
+```
+
+##### `document`
+A document file
+
+```
+brochure media/document
+```
+
+##### `image`
+An image
+
+```
+featured_image media/image
+```
+
 
 #### `number`
 A number field.
@@ -146,9 +209,9 @@ A number field.
 - [`decimal`](#decimal)
 
 **Attributes:**
-- `min: n` *(integer or float, optional)* - the minimum field value
+- `min` *(integer or float, optional)* - the minimum field value
     - default: `no minimum`
-- `max: n` *(integer or float, optional)* - the maximum field value
+- `max` *(integer or float, optional)* - the maximum field value
     - default: `no maximum`
 
 ##### `integer`
@@ -167,8 +230,8 @@ A decimal number.
 - `min/max` attributes support `float` values
 
 **Attributes:**
-- `scale: n` *(integer, optional)* - the total number of digits after the decimal point
-    - default value: `2`
+- `scale` *(integer, optional)* - the total number of digits after the decimal point
+    - default: `2`
 
 ```
 price number/decimal
@@ -176,27 +239,41 @@ price number/decimal
     scale: 2
 ```
 
-#### `media`
-**Sub-types:**
-
-**Attributes:**
-
 #### `password`
 **Sub-types:**
 
 **Attributes:**
 
 #### `reference`
+A reference to another content type or taxonomy.
+
 **Sub-types:**
 
 **Attributes:**
+- `target: content_type` *(type or tax, required)* - reference target can be a type or tax.
+- `quantity_min` or `qty_min` *(integer, optional)* - the minimum number of objects to be referenced
+    - default: `0`
+- `quantity_max` or `qty_max` *(integer, optional)* - the maximum number of objects to be referenced
+    - default: `infinite`
+- `quantity` or `qty` *(integer or array, optional)* - the min/max number of objects to be referenced
+    - default: `[0, infinit]`
+    - an array of the same two integers such as `[2, 2]` sets the required amount at that number
+    - a single integer can be used in place of an array, such as `2` instead of `[2, 2]`
+
+```
+related_news reference
+    target: news_article
+    qty: [1, 2]
+```
 
 #### `select`
 **Sub-types:**
+- [`single`](#single)
+- [`multi`](#multi)
 
 **Attributes:**
 
-##### `single` (or null)
+##### `single`
 ##### `multi`
 
 #### `text`
@@ -225,7 +302,7 @@ Shorthand for [`date`](#date), but with a default format for time only.
 
 **Attributes:**
 - `format: hh:mm:ss.sss` *(string, optional)*
-    - default value: `hh:mm:ss.sss`
+    - default: `hh:mm:ss.sss`
 
 ```
 start_time as 'Event Start Time' time
