@@ -1,6 +1,14 @@
 # CMML
 CMML (content modeling markup language) is a general-purpose language (GPL) intended for use in content modeling. CMML can also be called a Content Management Modeling Language, and be used for modeling content management systems (CMS) architecture.
 
+> CMML is influenced heavily by [DBML](https://github.com/holistics/dbml) and work done by the [Holistics](https://github.com/holistics) team. Thanks!
+
+The *goal* of CMML is to simplify content modeling for developers. As such it is intended to be used along side design or functional spec to help identify content needs, structure, and relationships in web design and development.
+
+> CMML is considered very pre-beta at the moment.
+
+### Explore CMML
+
 - [Project Definition](#project-definition)
 - [Content Type Definition](#content-type-definition)
 - [Field Definition](#content-type-definition)
@@ -226,35 +234,18 @@ Type product as 'Sample Product'
             2
 ```
 
-Alternately we can write our definitions in object/array format:
+Alternately we can write our definitions in object/array format for compactness:
 ```
 Type product as 'Sample Product'
-    id as 'SKU' number
-        required
-        unique
-    title as 'Product Name' text
-        length: 100
-        notes: 'Product names are limited to 100 characters'
-    description text
-        supports: wysiwyg
-    size select
-        choices: [NULL, s as 'small', m as 'medium', l as 'large']
-    featured_image as 'Featured Image' image
-        file_size: 1MB
-        required
-    product_images as 'Slider Images' image
-        file_size: 1MB
-        min: 5
-        notes: 'Products must have at least 5 slider images or no images'
-    product_brochure as 'Brochure' document
-        max: 1
-        notes: 'Products have the option for a brochure document'
-    price currency
-        required
-    sale_price currency
-    is_on_sale as 'On Sale' boolean
-        default: false
-    related_products reference
-        target: product
-        max: 2
+    id as 'SKU' number [required, unique]
+    title as 'Product Name' text [{length: 100}, {notes: 'Product names are limited to 100 characters'}]
+    description text [{supports: wysiwyg}]
+    size select [{choices: [NULL, s as 'small', m as 'medium', l as 'large']}]
+    featured_image as 'Featured Image' image [{file_size: 1MB}, {required}]
+    product_images as 'Slider Images' image [{file_size: 1MB}, {min: 5}, {notes: 'Products must have at least 5 slider images or no images'}]
+    product_brochure as 'Brochure' document [{max: 1}, {notes: 'Products have the option for a brochure document'}]
+    price currency [required]
+    sale_price currency []
+    is_on_sale as 'On Sale' boolean [{default: false}]
+    related_products reference [{target: product}, {max: 2}]
 ```
